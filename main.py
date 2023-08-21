@@ -1,9 +1,10 @@
 import telebot
-from telebot import types
 
 import goods_requests
-import general
+import link_parser
 from api_key import key
+from constants import SUPPORTED_SHOPS
+
 
 bot = telebot.TeleBot(key)
 
@@ -29,16 +30,16 @@ def start(message):
 
 @bot.message_handler(commands=["shops"])
 def start(message):
+    shops = ", ".join(f"{v}" for v in SUPPORTED_SHOPS.values())
     bot.send_message(
         message.chat.id,
-        f"Я умею проверять информацию о наличии товара в "
-        f"магазинах {general.SUPPORTED_SHOPS}",
+        f"Я умею проверять информацию о наличии товара в магазинах: {shops}",
     )
 
 
 @bot.message_handler(content_types=["text"])
 def get_user_text(message):
-    check = general.link_checker(message.text)
+    check = link_parser.link_checker(message.text)
     if check == "goldapple.ru":
         request_result = goods_requests.gold_apple_stock_status(message.text)
         if request_result is True:
